@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}My Cart{% endblock %}
+{% block content %}
+<div class="container">
+    <h2>My Cart</h2>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for entry in cart_items %}
+            <tr id="cart-item-{{ entry.item.product.id }}">
+                <td>{{ entry.item.product.product_name }}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="updateCart({{ entry.item.product.id }}, 'decrease')">-</button>
+                    <span id="quantity-{{ entry.item.product.id }}">{{ entry.item.quantity }}</span>
+                    <button class="btn btn-success btn-sm" onclick="updateCart({{ entry.item.product.id }}, 'increase')">+</button>
+                </td>
+                <td id="price-{{ entry.item.product.id }}">{{ entry.item_total }}</td>
+                <td><button class="btn btn-danger" onclick="removeFromCart({{ entry.item.product.id }})">Remove</button></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <h3>Total: $<span id="total-price">{{ total_price }}</span></h3>
+    <a href="{% url 'checkout' %}" class="btn btn-primary">Proceed to Checkout</a>
+</div>
+
+<script>
+// Update cart quantity (+ and - buttons)
+function updateCart(productId, action) {
+    fetch(`/update_cart/${productId}/${action}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Update quantity and price on the page without reload
+            document.getElementById('quantity-' + productId).innerText = data.quantity;
+            document.getElementById('price-' + productId).innerText = data.price;
+            document.getElementById('total-price').innerText = data.total_price;
+        } else {
+            alert('Error updating cart');
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+
+// Remove item from cart
+function removeFromCart(productId) {
+    fetch(`/remove_from_cart/${productId}/`, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Remove the item row
+            document.getElementById('cart-item-' + productId).remove();
+            // Update the total price
+            document.getElementById('total-price').innerText = data.total_price;
+        } else {
+            alert('Error removing item from cart');
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+    });
+}
+</script>
+
+
+{% endblock %}

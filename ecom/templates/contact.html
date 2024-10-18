@@ -1,0 +1,35 @@
+<!-- templates/products/contact.html -->
+{% extends 'base.html' %}
+{% block title %}Contact{% endblock title %}
+{% block content %}
+{% if messages %}
+<div id="message-container">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+    {% endfor %}
+</div>
+<script>
+    setTimeout(function() {
+        var messageContainer = document.getElementById('message-container');
+        if (messageContainer) {
+            messageContainer.style.display = 'none';
+        }
+    }, 10000); // 10000 milliseconds = 10 seconds
+</script>
+{% endif %}
+
+    <form action="" method="post">
+        {% csrf_token %}
+        <label for="name">Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="email">Email:</label><br>
+        <input type="email" id="email" name="email"><br>
+        <label for="phonenumber">Phone Number:</label><br>
+        <input type="text" id="phonenumber" name="phonenumber"><br>
+        <label for="desc">Description:</label><br>
+        <textarea id="desc" name="desc"></textarea><br>
+        <input type="submit" value="Submit">
+    </form>
+{% endblock content %}
